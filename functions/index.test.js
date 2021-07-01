@@ -39,15 +39,6 @@ test('should execute enter middleware in scene', async (t) => {
     t.is("hello1", res)
     console.log(res)
     return res
-    //const res = await bot.handleUpdate({ message: BaseTextMessage })
-/*     t.assert(text, res)
-    return res */
 })
 
 
-/* const b = new Bot('dummy')
-b.api.config.use((prev, m, p) =>
-// Let all API calls return undefined because we don't need return values
-undefined)
-b.use(fooMiddleware)
-await bot.handleUpdate(fakeUpdateObjectThatCanTestTheMiddleware) */
