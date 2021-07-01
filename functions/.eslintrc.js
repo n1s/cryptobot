@@ -8,5 +8,10 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 12,
   },
-  rules: {},
+  plugins: [
+    "no-floating-promise"
+  ],
+  rules: {
+    "no-floating-promise/no-floating-promise": 2
+  },
 };

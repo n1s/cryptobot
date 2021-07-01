@@ -1,53 +1,13 @@
 const functions = require("firebase-functions");
 //const admin = require('firebase-admin'); 
-const { CoinGeckoClient } = require('coingecko-api-v3');
-const { Bot, session, InlineKeyboard, webhookCallback } = require("grammy");
-//const { simplePrice, getCoin, getCoinList, getTrending } = require('./gecko')
-//const gecko = require('./gecko')
+const { getSimplePrice, getCoinList, getCoin, getTrending } = require('./api');
+const { Bot, session, InlineKeyboard, /* webhookCallback */ } = require("grammy");
 
-const cgc = new CoinGeckoClient
 const bot = new Bot(functions.config().prod.bot_token);
-
-
-async function getCoin(id) {
-    const input = {
-        'id': id,
-        'market_data': true,
-        'localization': false,
-        'tickers': false,
-        'community_data': false,
-        'sparkline': false,
-        'developer_data': false
-    }
-    return await cgc.coinId(input);
-}
-
-async function getCoinList() {
-    return await cgc.coinList();
-/*     return [{
-        "id": "bitcoin",
-        "symbol": "btc",
-        "name": "Bitcoin"
-    }] */
-}
-
-async function simplePrice(id, currency) {
-    const input = {
-        vs_currencies: currency,
-        ids: id,
-        include_market_cap: false,
-        include_24hr_vol: false,
-        include_24hr_change: false,
-        include_last_updated_at: false,
-    }
-
-    const simplePrice = await cgc.simplePrice(input);
-    return simplePrice[id][currency]
-}
 
 async function trendingKb() {
     //console.log(await cgc.simplePrice('bitcoin','usd'))
-    const trending = await cgc.trending                                                                                                                                                                                             ();
+    const trending = await getTrending();
 
     const keyboard = new InlineKeyboard
 
@@ -78,6 +38,18 @@ bot.use(session({
     })
 )
 
+bot.api.config.use((prev, m, p) => {
+    console.log(p)
+    return prev(m, p)
+})
+
+bot.command('test', testHandler)
+
+async function testHandler(ctx, next) {
+    ctx.reply('hello')
+    console.log('rannn')
+    return next()
+}
 
 bot.command('start', async ctx => {
     delete ctx.session
@@ -136,7 +108,9 @@ bot.on("callback_query:data", (ctx, next) => {
 })
 
 
-bot.filter(ctx => (!ctx.session.amount && ctx.session.coin), async (ctx, next) => {
+bot.filter(ctx => (!ctx.session.amount && ctx.session.coin), convertToFiat)
+
+async function convertToFiat(ctx, next) {
     const session = ctx.session
     if (isNaN(ctx.msg.text)) {
         session.wantedCoin = ctx.msg.text
@@ -146,7 +120,7 @@ bot.filter(ctx => (!ctx.session.amount && ctx.session.coin), async (ctx, next) =
     const localCurrency = session.localCurrency
     session.coin.market_data = session.coin.market_data || {}
     const current_price = session.coin.market_data.current_price = session.coin.market_data.current_price || {}
-    if (!current_price[localCurrency]) current_price[localCurrency] = await simplePrice(session.coin.id, localCurrency)
+    if (!current_price[localCurrency]) current_price[localCurrency] = await getSimplePrice(session.coin.id, localCurrency)
 
     const amount = ctx.msg.text
     session.amount = amount
@@ -159,9 +133,11 @@ bot.filter(ctx => (!ctx.session.amount && ctx.session.coin), async (ctx, next) =
     session.exchanged = converter(amount, current_price[localCurrency])
 
     await next()
-})
+}
 
-bot.filter(ctx => (!ctx.session.coin), async (ctx) => {
+bot.filter(ctx => (!ctx.session.coin), validateCoin)
+
+async function validateCoin(ctx) {
     const session = ctx.session
     if (!session.coinList) session.coinList = await getCoinList()
     session.coin = session.coinList.find( c => {
@@ -181,10 +157,9 @@ bot.filter(ctx => (!ctx.session.coin), async (ctx) => {
     } catch (error) {
         ctx.reply(error.message)
     }
-})
+}
 
-
-bot.filter(ctx => (ctx.session.exchanged), async (ctx, next) => {
+async function printConvertedValue(ctx, next) {
     const session = ctx.session
     const localCurrency = session.localCurrency
     const amount = parseInt(session.amount)
@@ -198,13 +173,23 @@ bot.filter(ctx => (ctx.session.exchanged), async (ctx, next) => {
     delete session.exchanged
 
     await next()
-})
+}
+
+
+bot.filter(ctx => (ctx.session.exchanged), printConvertedValue)
 
 
 // Catch errors and log them
 bot.catch(err => console.error(err))
 
 // Start bot!
-//bot.start()
+bot.start()
 
-exports.bot = functions.https.onRequest(webhookCallback(bot))
+//exports.bot = functions.https.onRequest(webhookCallback(bot))
+
+module.exports = {
+    printConvertedValue: printConvertedValue,
+    validateCoin: validateCoin,
+    convertToFiat: convertToFiat,
+    testHandler: testHandler
+}
