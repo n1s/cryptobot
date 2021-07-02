@@ -1,11 +1,19 @@
 const { Bot, session, InlineKeyboard, /* webhookCallback */ } = require("grammy");
 const { testHandler } = require('./index')
 const test = require('ava');
+const { assert } = require("assert")
 
-function createBot (...args) {
-    const bot = new Bot('dummy', ...args)
-    bot.api.config.use((prev, method, payload) => undefined)
+function createBot(args) {
+    const bot = new Bot('dummy')
     bot.botInfo = { id: 42, is_bot: true, username: 'bot', first_name: 'Bot' }
+    bot.api.config.use((prev, method, payload) => {
+        //console.log(payload.text)
+        //console.log(args)
+        assert.strictEqual(args, payload.text, 'lama')
+        if(!payload.text === args) {
+            throw new Error(`${payload.text} =/= ${args}`)
+        }
+    })
     return bot
 }
   
@@ -19,8 +27,9 @@ const BaseTextMessage = {
     //text: 'foo'
 }
 
-test('should execute enter middleware in scene', async (t) => {
-    const bot = createBot()
+test('should execute enter middleware in scene', async () => {
+    const res = "hello1" 
+    const bot = createBot(res)
     const msg = {
         message: {
             chat: {
@@ -35,10 +44,7 @@ test('should execute enter middleware in scene', async (t) => {
 
     bot.use(testHandler)
 
-    const res = await bot.handleUpdate(msg)
-    t.is("hello1", res)
-    console.log(res)
-    return res
+    return await bot.handleUpdate(msg)
 })
 
 

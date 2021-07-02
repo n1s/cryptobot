@@ -38,16 +38,16 @@ bot.use(session({
     })
 )
 
-bot.api.config.use((prev, m, p) => {
+/* bot.api.config.use((prev, m, p) => {
     console.log(p)
     return prev(m, p)
-})
+}) */
 
 bot.command('test', testHandler)
 
 async function testHandler(ctx, next) {
-    ctx.reply('hello')
-    console.log('rannn')
+    await ctx.reply('hello')
+    //console.log('rannn')
     return next()
 }
 
