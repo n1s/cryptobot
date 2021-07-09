@@ -17,11 +17,6 @@ async function getCoin(id) {
 
 async function getCoinList() {
     return await cgc.coinList();
-/*     return [{
-        "id": "bitcoin",
-        "symbol": "btc",
-        "name": "Bitcoin"
-    }] */
 }
 
 async function getSimplePrice(id, currency) {
@@ -43,8 +38,8 @@ async function getTrending() {
 }
 
 module.exports = {
-    getSimplePrice: getSimplePrice,
-    getCoinList: getCoinList,
-    getCoin: getCoin,
-    getTrending: getTrending
+    getSimplePrice,
+    getCoinList,
+    getCoin,
+    getTrending
 }
