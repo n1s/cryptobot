@@ -52,12 +52,6 @@ jobs:
         run: npm ci --no-audit
         working-directory: ${{ env.RESOURCE_DIR }}
 
-      - name: Download Artifact
-        uses: actions/download-artifact@master
-        with:
-          name: lib
-          path: ${{ env.RESOURCE_DIR }}/lib
-
       - name: Prepare deploy
         run: |
           branch="${GITHUB_REF/"refs/heads/"/}"
