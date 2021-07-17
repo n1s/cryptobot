@@ -52,15 +52,6 @@ jobs:
         run: npm ci --no-audit
         working-directory: ${{ env.RESOURCE_DIR }}
 
-      - name: Prepare deploy
-        run: |
-          branch="${GITHUB_REF/"refs/heads/"/}"
-          case "${branch%%/*}" in \
-            main|master) project_id="cryptobot-9657e ;; \
-            develop)     project_id="cryptobot-9657e ;; \
-          esac;
-          echo "PROJECT_ID=$project_id" >> $GITHUB_ENV
-
       - name: Deploy to Firebase
         uses: w9jds/firebase-action@master
         with:
