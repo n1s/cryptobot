@@ -8,7 +8,6 @@ const {
   convertToFiat,
   printCoinData,
   printConvertedValue,
-  testHandler,
 } = require("./utils");
 const { Bot, session, webhookCallback } = require("grammy");
 
@@ -24,12 +23,6 @@ bot.use(
   })
 );
 
-/* bot.api.config.use((prev, m, p) => {
-  console.log(p);
-  return prev(m, p);
-}); */
-
-bot.command("test", testHandler);
 bot.command("start", trendingMenu);
 bot.on(":text", selectCoin);
 bot.callbackQuery("show", printCoinData);

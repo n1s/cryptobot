@@ -24,16 +24,6 @@ async function trendingKb() {
 
 const mainKb = new InlineKeyboard().text("🔍 Show coin", "show");
 
-/* bot.api.config.use((prev, m, p) => {
-    console.log(p)
-    return prev(m, p)
-}) */
-
-async function testHandler(ctx, next) {
-  await ctx.reply("hello");
-  return next();
-}
-
 async function trendingMenu(ctx) {
   delete ctx.session;
   await ctx.reply(
@@ -172,6 +162,5 @@ module.exports = {
   printCoinData,
   printConvertedValue,
   validateCoin,
-  convertToFiat,
-  testHandler,
+  convertToFiat
 };

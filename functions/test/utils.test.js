@@ -1,6 +1,5 @@
 const { Bot, session } = require("grammy");
 const {
-  testHandler,
   trendingMenu,
   printCoinData,
   validateCoin,
@@ -53,13 +52,6 @@ const baseUpdate = {
   },
   text: "test",
 };
-
-test("should send hello", async (t) => {
-  const bot = createBot(t, "hello", "text");
-  bot.use(testHandler);
-  await bot.handleUpdate({ message: { ...baseUpdate } });
-  t.pass();
-});
 
 test("should show trending menu", async (t) => {
   const jsonKeyboard = {
