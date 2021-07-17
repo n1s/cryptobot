@@ -57,7 +57,7 @@ jobs:
           branch="${GITHUB_REF/"refs/heads/"/}"
           case "${branch%%/*}" in \
             main|master) project_id="cryptobot-9657e ;; \
-            develop)     project_id="PROJECT_ID_TESTING ;; \
+            develop)     project_id="cryptobot-9123a ;; \
           esac;
           echo "PROJECT_ID=$project_id" >> $GITHUB_ENV
 
